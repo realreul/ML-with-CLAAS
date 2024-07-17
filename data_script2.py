@@ -29,6 +29,13 @@ def extract_and_create_columns(df, column_name):
         logging.error(f"Die Spalte {column_name} existiert nicht im DataFrame.")
     return df
 
+def filter_by_year(df, start_year, end_year):
+    logging.info(f"Filtere Daten von {start_year} bis {end_year}...")
+    df['Datum'] = pd.to_datetime(df['Datum'])
+    df = df[(df['Datum'].dt.year >= start_year) & (df['Datum'].dt.year <= end_year)]
+    logging.info("Daten erfolgreich nach Jahr gefiltert.")
+    return df
+
 def filter_and_clean_df(df, merkmale, columns_to_drop):
     logging.info("Filtere und bereinige DataFrame...")
     filtered_df = df[df['Merkmal'].isin(merkmale)].reset_index(drop=True)
@@ -37,7 +44,7 @@ def filter_and_clean_df(df, merkmale, columns_to_drop):
     return cleaned_df
 
 def calculate_monthly_aggregates(df):
-    logging.info("ERstelle monatliche Zeitreihen...")
+    logging.info("Erstelle monatliche Zeitreihen...")
     monthly_aggregates = defaultdict(dict)
     total_monthly_by_merkmalname = {}
 
@@ -103,11 +110,13 @@ def merge_dataframes(result_df, combined_df):
     logging.info("DataFrames erfolgreich zusammengeführt.")
     return merged_df
 
-def main():
+def main(start_year, end_year):
     logging.info("Starte Hauptprozess...")
     excel_files = ['CLAAS_data/S611_Teil_1_P10_20240604.XLSX', 'CLAAS_data/S611_Teil_2_P10_20240604.XLSX']
     df = read_excel_files(excel_files)
     df = extract_and_create_columns(df, 'Merkmal/Wert/Bezeichng. f. Serienplanun')
+    
+    df = filter_by_year(df, start_year, end_year)
 
     merkmale = ['P02', 'N02', 'N08', 'N05', 'B10', 'G02']
     columns_to_drop = ['Statistik-Herkunft', 'Version', 'Monat', 'Woche', 'Periode', 'Werk', 'Material', 
@@ -127,4 +136,7 @@ def main():
     logging.info("Prozess abgeschlossen und DataFrame gespeichert.")
 
 if __name__ == "__main__":
-    main()
+    # Hier kannst du das Start- und Endjahr angeben
+    start_year = 2014
+    end_year = 2023
+    main(start_year, end_year)
