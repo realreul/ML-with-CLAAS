@@ -12,4 +12,4 @@ To start the application, follow the commands below:
 7. Activate the virtual environment with the following comand in the .../ML-with-CLAAS/flask_app folder: .\venv\Scripts\activate
 8. Then install the requirements in the virtual environment with this comand in the same folder: pip install -r requirements.txt
 9. Start the application with: python run.py
-You should now be able to access the application under: http://127.0.0.1:5000
+You should now be able to access the application under: http://127.0.0.1:5000 . Exit the application with CTRL + C in the terminal.
