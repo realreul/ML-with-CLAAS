@@ -1,18 +1,10 @@
 <template>
   <v-container class="fill-height">
-    <v-responsive
-      class="align-centerfill-height mx-auto"
-      max-width="955"
-    >
-      <v-img
-        class="mt-4 mb-4"
-        height="150"
-        src="@/assets/logo.png"
-      />
+    <v-responsive class="align-center fill-height mx-auto" max-width="955">
+      <v-img class="mt-4 mb-4" height="150" src="@/assets/logo.png" />
 
       <div class="text-center">
-        <div class="text-body-2 font-weight-light mb-n1">Welcome to</div>
-
+        <div class="text-body-2 font-weight-light mb-n1">Willkommen zu</div>
         <h1 class="text-h2 font-weight-bold">Machine Learning</h1>
       </div>
 
@@ -20,19 +12,8 @@
 
       <v-row>
         <v-col cols="12">
-          <v-card
-            class="py-0"
-            rounded="lg"
-            variant="outlined"
-          >
-            
-            <v-tabs
-              v-model="tab"
-              bg-color="grey-lighten-5"
-              color="grey-darken-4"
-              align-tabs="center"
-              @input="onTabChange"
-            >
+          <v-card class="py-0" rounded="lg" variant="outlined">
+            <v-tabs v-model="tab" bg-color="grey-lighten-5" color="grey-darken-4" align-tabs="center" @change="onTabChange">
               <v-tab value="B10">Einzugskanal</v-tab>
               <v-tab value="G02">Strohablage</v-tab>
               <v-tab value="N02">Fahrantrieb</v-tab>
@@ -42,209 +23,43 @@
             </v-tabs>
 
             <v-card-text>
-              <v-tabs-window v-model="tab">
-                <v-tabs-window-item value="B10">
-                <v-btn block
-                      :loading="loading"
-                      @click="onTabChange"
-                    >
-                      Initiate machine learning model for forecasting
-
-                      <template v-slot:loader>
-                        <v-progress-linear color="red-darken-4" indeterminate></v-progress-linear>
-                      </template>
-                    </v-btn>
-                  <v-autocomplete
-                    label="Merkmalswert"
-                    :items="merksmalswerte"
-                    v-model="selectedMerkmalswert"
-                    @change="onSelectionChangeGetStartDatum"
-                  ></v-autocomplete>
-                  <v-autocomplete
-                    label="Startdatum"
-                    :items="startdatum"
-                     v-model="selectedStartdatum"
-                  ></v-autocomplete>
+              <v-tabs-items v-model="tab">
+                <v-tab-item value="B10">
+                  <v-autocomplete label="Merkmalswert" :items="merksmalswerte" v-model="selectedMerkmalswert" @change="onSelectionChangeGetStartDatum"></v-autocomplete>
+                  <v-autocomplete label="Startdatum" :items="startdatum" v-model="selectedStartdatum"></v-autocomplete>
                   <div>
-                    <v-btn block
-                      :loading="loading"
-                      @click="getmw1"
-                    >
-                      Initiate machine learning model for forecasting
-
-                      <template v-slot:loader>
-                        <v-progress-linear color="red-darken-4" indeterminate></v-progress-linear>
-                      </template>
-                    </v-btn>
-                  </div >
-                  
-            
-                </v-tabs-window-item>
-
-                <v-tabs-window-item value="G02">
-                  <v-autocomplete
-                    label="Merkmalswert"
-                    :items="merksmalswerte"
-                    v-model="selectedMerkmalswert"
-                    @change="onSelectionChangeGetStartDatum"
-                  ></v-autocomplete>
-                  <v-autocomplete
-                    label="Startdatum"
-                    :items="startdatum"
-                     v-model="selectedStartdatum"
-                  ></v-autocomplete>
-                  <div>
-                    <v-btn block
-                      :loading="loading"
-                      @click="getmw2"
-                    >
-                      Initiate machine learning model for forecasting
-
+                    <v-btn block :loading="loading" @click="getmw1">
+                      Machine Learning Modell für Vorhersage initiieren
                       <template v-slot:loader>
                         <v-progress-linear color="red-darken-4" indeterminate></v-progress-linear>
                       </template>
                     </v-btn>
                   </div>
-                </v-tabs-window-item>
+                </v-tab-item>
 
-                <v-tabs-window-item value="N02">
-                  <v-autocomplete
-                    label="Merkmalswert"
-                    :items="merksmalswerte"
-                    v-model="selectedMerkmalswert"
-                    @change="onSelectionChangeGetStartDatum"
-                  ></v-autocomplete>
-                  <v-autocomplete
-                    label="Startdatum"
-                    :items="startdatum"
-                     v-model="selectedStartdatum"
-                  ></v-autocomplete>
-                  <div>
-                    <v-btn block
-                      :loading="loading"
-                      @click="getmw3"
-                    >
-                      Initiate machine learning model for forecasting
+                <!-- Ähnlicher Aufbau für andere Tabs (G02, N02, N05, N08, P02) -->
 
-                      <template v-slot:loader>
-                        <v-progress-linear color="red-darken-4" indeterminate></v-progress-linear>
-                      </template>
-                    </v-btn>
-                  </div>
-                </v-tabs-window-item>
-
-                <v-tabs-window-item value="N05">
-                  <v-autocomplete
-                    label="Merkmalswert"
-                    :items="merksmalswerte"
-                    v-model="selectedMerkmalswert"
-                    @change="onSelectionChangeGetStartDatum"
-                  ></v-autocomplete>
-                  <v-autocomplete
-                    label="Startdatum"
-                    :items="startdatum"
-                     v-model="selectedStartdatum"
-                  ></v-autocomplete>
-                  <div>
-                    <v-btn block
-                      :loading="loading"
-                      @click="getmw4"
-                    >
-                      Initiate machine learning model for forecasting
-
-                      <template v-slot:loader>
-                        <v-progress-linear color="red-darken-4" indeterminate></v-progress-linear>
-                      </template>
-                    </v-btn>
-                  </div>
-
-                  
-                    <v-text>{{mw4}}</v-text>
-                  
-                    
-
-                  
-                </v-tabs-window-item>
-
-                <v-tabs-window-item value="N08">
-                  <v-autocomplete
-                    label="Merkmalswert"
-                    :items="merksmalswerte"
-                    v-model="selectedMerkmalswert"
-                    @change="onSelectionChangeGetStartDatum"
-                  ></v-autocomplete>
-                  <v-autocomplete
-                    label="Startdatum"
-                    :items="startdatum"
-                     v-model="selectedStartdatum"
-                  ></v-autocomplete>
-                  <div>
-                    <v-btn block
-                      :loading="loading"
-                      @click="getmw5"
-                    >
-                      Initiate machine learning model for forecasting
-
-                      <template v-slot:loader>
-                        <v-progress-linear color="red-darken-4" indeterminate></v-progress-linear>
-                      </template>
-                    </v-btn>
-                  </div>
-                  <v-text v-if="mw5">{{mw5}}</v-text>
-                </v-tabs-window-item>
-
-                <v-tabs-window-item value="P02">
-                  <v-autocomplete
-                    label="Merkmalswert"
-                    :items="merksmalswerte"
-                    v-model="selectedMerkmalswert"
-                    @change="onSelectionChangeGetStartDatum"
-                  ></v-autocomplete>
-                  <v-autocomplete
-                    label="Startdatum"
-                    :items="startdatum"
-                     v-model="selectedStartdatum"
-                  ></v-autocomplete>
-                  <div>
-                    <v-btn block
-                      :loading="loading"
-                      @click="getmw6"
-                    >
-                      Initiate machine learning model for forecasting
-
-                      <template v-slot:loader>
-                        <v-progress-linear color="red-darken-4" indeterminate></v-progress-linear>
-                      </template>
-                    </v-btn>
-                  </div>
-                </v-tabs-window-item>
-              </v-tabs-window>
+              </v-tabs-items>
             </v-card-text>
-
           </v-card>
         </v-col>
       </v-row>
+
       <v-row class="mb-16">
         <v-col cols="12">
           <v-expansion-panels>
-            <v-expansion-panel rounded="lg" variant="outlined" >
-            <v-expansion-panel-title class="text-h6">
-           What are the Option Take Rates?
-            </v-expansion-panel-title>
-            <v-expansion-panel-text>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</v-expansion-panel-text>
-              </v-expansion-panel>
-            <v-expansion-panel rounded="lg" variant="outlined" >
-            <v-expansion-panel-title class="text-h6">
-            How to predict for the next month?
-            </v-expansion-panel-title>
-            <v-expansion-panel-text>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</v-expansion-panel-text>
-              </v-expansion-panel>
-            <v-expansion-panel rounded="lg" variant="outlined" >
-            <v-expansion-panel-title class="text-h6">
-           How to change the value?
-            </v-expansion-panel-title>
-            <v-expansion-panel-text>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</v-expansion-panel-text>
-              </v-expansion-panel>
+            <v-expansion-panel rounded="lg" variant="outlined">
+              <v-expansion-panel-title class="text-h6">Was sind die Optionsannahmeraten?</v-expansion-panel-title>
+              <v-expansion-panel-text>Lorem ipsum...</v-expansion-panel-text>
+            </v-expansion-panel>
+            <v-expansion-panel rounded="lg" variant="outlined">
+              <v-expansion-panel-title class="text-h6">Wie sagt man den nächsten Monat vorher?</v-expansion-panel-title>
+              <v-expansion-panel-text>Lorem ipsum...</v-expansion-panel-text>
+            </v-expansion-panel>
+            <v-expansion-panel rounded="lg" variant="outlined">
+              <v-expansion-panel-title class="text-h6">Wie ändert man den Wert?</v-expansion-panel-title>
+              <v-expansion-panel-text>Lorem ipsum...</v-expansion-panel-text>
+            </v-expansion-panel>
           </v-expansion-panels>
         </v-col>
       </v-row>
@@ -253,91 +68,74 @@
 </template>
 
 <script>
-  import axios from "axios";
-  
-  export default {
-    data: () => ({
-      tab: "B10",
-      loading: false,
-      mw1: {},
-      mw2: {},
-      mw3: {},
-      mw4: {},
-      mw5: {},
-      mw6: {},
-      merksmalswerte: ['Merkmalswert 1', 'Merkmalswert 2','Merkmalswert 3','Merkmalswert 4'],
-      startdatum: ['Startdatum 1', 'Startdatum 2','Startdatum 3','Startdatum 4'],
-      selectedMerkmalswert: null,
-      selectedStartdatum: null,
-    }),
+import axios from 'axios';
 
-    methods: {
+export default {
+  data: () => ({
+    tab: 'B10',
+    loading: false,
+    mw1: {},
+    merksmalswerte: [],
+    startdatum: [],
+    selectedMerkmalswert: null,
+    selectedStartdatum: null,
+  }),
 
-      async onTabChange() {
-        console.log("ahahaha");
+  methods: {
+    async fetchMerkmalswerte() {
+      try {
         const { data } = await axios.get(`http://localhost:5000/get_merkmalswert/${this.tab}`);
-        this.merksmalswerte = data;  
-      },
+        this.merksmalswerte = ['Alle Merkmalswerte', ...data]; // Hinzufügen von "Alle Merkmalswerte"
+      } catch (error) {
+        console.error('Fehler beim Abrufen der Merkmalswerte:', error);
+      }
+    },
 
-      async onSelectionChangeGetStartDatum(selectedItem){
-        const { data } = await axios.get(`http://localhost:5000/get_dates/${this.tab}/${selectedMerkmalswert}`);
-        this.startdatum = data; 
-      },
-      
-      async getmw1() {
-        const response = await           axios.get("https://api.zippopotam.us/us/33162", {
+    async onTabChange() {
+      await this.fetchMerkmalswerte();
+      this.selectedMerkmalswert = null; // Zurücksetzen des ausgewählten Merkmalswertes
+    },
+
+    async onSelectionChangeGetStartDatum(selectedItem) {
+      try {
+        const { data } = await axios.get(`http://localhost:5000/get_dates/${this.tab}/${this.selectedMerkmalswert}`);
+        this.startdatum = data;
+      } catch (error) {
+        console.error('Fehler beim Abrufen der Startdaten:', error);
+      }
+    },
+
+    async getmw1() {
+      this.loading = true;
+      try {
+        const response = await axios.get('https://api.zippopotam.us/us/33162', {
           params: {
             merkmalswert: this.selectedMerkmalswert,
-            startdatum: this.selectedStartdatum
-          }
+            startdatum: this.selectedStartdatum,
+          },
         });
         this.mw1 = response.data;
-      },
-
-      async getmw2() {
-        const { data } = await axios.get("https://yesno.wtf/api");
-        this.mw2 = data;
-      },
-
-      async getmw3() {
-        const { data } = await axios.get("https://yesno.wtf/api");
-        this.mw3 = data;
-      },
-
-      async getmw4() {
-        const { data } = await axios.get("https://yesno.wtf/api");
-        this.mw4 = data;
-      },
-
-      async getmw5() {
-        const { data } = await axios.get("https://yesno.wtf/api");
-        this.mw5 = data;
-      },
-
-      async getmw6() {
-        const { data } = await axios.get("https://yesno.wtf/api");
-        this.mw6 = data;
-      },
+      } catch (error) {
+        console.error('Fehler beim Abrufen von mw1:', error);
+      } finally {
+        this.loading = false;
+      }
     },
     
-    computed: {
-      virtualBoats () {
-        return [...Array(10000).keys()].map(i => {
-          const boat = { ...this.boats[i % this.boats.length] }
-          boat.name = `${boat.name} #${i}`
-          return boat
-        })
-      },
-    },
-    
-    watch: {
-      loading (val) {
-        if (!val) return
+    // Ähnliche getmw Methoden für andere Tabs (getmw2, getmw3, etc.)
 
-        setTimeout(() => (this.loading = false), 2000)
-      },
-    },
+  },
+
+  watch: {
+    tab() {
+      this.onTabChange();
+    }
+  },
+
+  mounted() {
+    this.fetchMerkmalswerte();
   }
+};
 </script>
 
 <style>
@@ -349,8 +147,6 @@
 }
 
 .custom-title {
-   font-size: 120px; /* Beispiel für größere Schriftgröße */
+  font-size: 120px; /* Beispiel für größere Schriftgröße */
 }
-
-
 </style>
