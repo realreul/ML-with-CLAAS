@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vorhersage Anwendung</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Vorhersage Anwendung</h1>
+        <p>Hier können Sie eine Vorhersage für Produktionsparameter anfordern.</p>
+        <div id="merkmal-buttons"></div>
+        <div id="merkmalswert-container" style="display: none;">
+            <label for="merkmalswert">Merkmalswert:</label>
+            <select id="merkmalswert" name="merkmalswert"></select>
+        </div>
+        <form id="prediction-form">
+            <label for="startdatum">Startdatum:</label>
+            <select id="startdatum" name="startdatum" required></select>
+            <label>Vorhersage für:</label>
+            <input type="radio" id="optionTakeRate" name="zielvariable" value="OptionTakeRate" required>
+            <label for="optionTakeRate">OptionTakeRate</label>
+            <input type="radio" id="bestaetigteMenge" name="zielvariable" value="BestätigteMenge">
+            <label for="bestaetigteMenge">Bestätigte Menge</label>
+            <button type="submit">Vorhersage anfordern</button>
+        </form>
+        <div id="results"></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/get_merkmal')
+                .then(response => response.json())
+                .then(data => {
+                    const merkmalButtons = document.getElementById('merkmal-buttons');
+                    data.forEach(merkmal => {
+                        const button = document.createElement('button');
+                        button.innerText = merkmal;
+                        button.onclick = function() {
+                            loadMerkmalswerte(merkmal);
+                        };
+                        merkmalButtons.appendChild(button);
+                    });
+                })
+                .catch(error => console.error('Error fetching merkmale:', error));
+        });
+
+        function loadMerkmalswerte(merkmal) {
+            fetch(`/get_merkmalswert/${merkmal}`)
+                .then(response => response.json())
+                .then(data => {
+                    const merkmalswertSelect = document.getElementById('merkmalswert');
+                    merkmalswertSelect.innerHTML = '<option value="Alle Merkmalswerte">Alle Merkmalswerte</option>';
+                    data.forEach(merkmalswert => {
+                        const option = document.createElement('option');
+                        option.value = merkmalswert;
+                        option.text = merkmalswert;
+                        merkmalswertSelect.appendChild(option);
+                    });
+                    document.getElementById('merkmalswert-container').style.display = 'block';
+                    
+                    // Setze direkt auf "Alle Merkmalswerte" und lade die entsprechenden Daten
+                    merkmalswertSelect.value = "Alle Merkmalswerte";
+                    loadDates(merkmal, "Alle Merkmalswerte");
+
+                    merkmalswertSelect.onchange = function() {
+                        loadDates(merkmal, merkmalswertSelect.value);
+                    };
+                })
+                .catch(error => console.error('Error fetching merkmalswerte:', error));
+        }
+
+        function loadDates(merkmal, merkmalswert) {
+            fetch(`/get_dates/${merkmal}/${merkmalswert}`)
+                .then(response => response.json())
+                .then(data => {
+                    const startdatumSelect = document.getElementById('startdatum');
+                    startdatumSelect.innerHTML = '';
+                    // Sortiere die Daten chronologisch
+                    data.sort((a, b) => new Date(a) - new Date(b));
+                    data.forEach(date => {
+                        const option = document.createElement('option');
+                        option.value = date;
+                        option.text = date;
+                        startdatumSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching dates:', error));
+        }
+
+        document.getElementById('prediction-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const merkmalswert = document.getElementById('merkmalswert').value;
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    merkmal: document.querySelector('button.active').innerText,
+                    merkmalswert: merkmalswert,
+                    startdatum: document.getElementById('startdatum').value,
+                    zielvariable: document.querySelector('input[name="zielvariable"]:checked').value,
+                }),
+            })
+            .then(response => {
+                if (merkmalswert === "Alle Merkmalswerte") {
+                    return response.blob();
+                } else {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                if (merkmalswert === "Alle Merkmalswerte") {
+                    const url = window.URL.createObjectURL(data);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = 'predictions.csv';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    document.getElementById('results').innerHTML = JSON.stringify(data, null, 2);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        document.addEventListener('click', function(event) {
+            if (event.target.tagName === 'BUTTON' && event.target.parentNode.id === 'merkmal-buttons') {
+                const buttons = document.querySelectorAll('#merkmal-buttons button');
+                buttons.forEach(button => button.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>
