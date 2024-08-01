@@ -103,6 +103,9 @@ def predict_all(merkmal, startdatum, zielvariable):
     if zielvariable == 'BestätigteMenge':
         zielvariable = 'Bestätige Menge'
 
+    if zielvariable == 'OptionTakeRate':
+        zielvariable = 'Relativer Anteil'
+
     model = load_model(zielvariable)
     data = get_data(merkmal, "Alle Merkmalswerte", startdatum)
     

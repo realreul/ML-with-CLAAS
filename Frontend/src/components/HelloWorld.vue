@@ -25,8 +25,17 @@
             <v-card-text>
               <v-tabs-items v-model="tab">
                 <v-tab-item value="B10">
-                  <v-autocomplete label="Merkmalswert" :items="merksmalswerte" v-model="selectedMerkmalswert" @change="onSelectionChangeGetStartDatum"></v-autocomplete>
-                  <v-autocomplete label="Startdatum" :items="startdatum" v-model="selectedStartdatum"></v-autocomplete>
+                  <v-select
+                    label="Merkmalswert"
+                    :items="merksmalswerte"
+                    v-model="selectedMerkmalswert"
+                    @update:modelValue="onSelectionChangeGetStartDatum"
+                  ></v-select>
+                  <v-select
+                    label="Startdatum"
+                    :items="startdatum"
+                    v-model="selectedStartdatum"
+                  ></v-select>
                   <div>
                     <v-btn block :loading="loading" @click="getmw1">
                       Machine Learning Modell für Vorhersage initiieren
@@ -36,9 +45,7 @@
                     </v-btn>
                   </div>
                 </v-tab-item>
-
-                <!-- Ähnlicher Aufbau für andere Tabs (G02, N02, N05, N08, P02) -->
-
+                <!-- Ähnlicher Aufbau für andere Tabs -->
               </v-tabs-items>
             </v-card-text>
           </v-card>
@@ -84,29 +91,40 @@ export default {
   methods: {
     async fetchMerkmalswerte() {
       try {
+        console.log('fetchMerkmalswerte: Start fetching merksmalswerte');
         const { data } = await axios.get(`http://localhost:5000/get_merkmalswert/${this.tab}`);
-        this.merksmalswerte = ['Alle Merkmalswerte', ...data]; // Hinzufügen von "Alle Merkmalswerte"
+        this.merksmalswerte = ['Alle Merkmalswerte', ...data];
+        console.log('fetchMerkmalswerte: Data fetched successfully', this.merksmalswerte);
       } catch (error) {
         console.error('Fehler beim Abrufen der Merkmalswerte:', error);
       }
     },
 
     async onTabChange() {
+      console.log('onTabChange: Tab changed to', this.tab);
+      this.selectedMerkmalswert = null;
+      this.selectedStartdatum = null;
       await this.fetchMerkmalswerte();
-      this.selectedMerkmalswert = null; // Zurücksetzen des ausgewählten Merkmalswertes
     },
 
-    async onSelectionChangeGetStartDatum(selectedItem) {
-      try {
-        const { data } = await axios.get(`http://localhost:5000/get_dates/${this.tab}/${this.selectedMerkmalswert}`);
-        this.startdatum = data;
-      } catch (error) {
-        console.error('Fehler beim Abrufen der Startdaten:', error);
+    async onSelectionChangeGetStartDatum(item) {
+      console.log('onSelectionChangeGetStartDatum: Selected Merkmalswert', item);
+      this.selectedStartdatum = null; // Setze das Datumsfeld zurück
+      if (item) {
+        try {
+          console.log('onSelectionChangeGetStartDatum: Start fetching startdatum');
+          const { data } = await axios.get(`http://localhost:5000/get_dates/${this.tab}/${item}`);
+          this.startdatum = data;
+          console.log('onSelectionChangeGetStartDatum: Startdatum fetched successfully', this.startdatum);
+        } catch (error) {
+          console.error('Fehler beim Abrufen der Startdaten:', error);
+        }
       }
     },
 
     async getmw1() {
       this.loading = true;
+      console.log('getmw1: Start fetching mw1');
       try {
         const response = await axios.get('https://api.zippopotam.us/us/33162', {
           params: {
@@ -115,15 +133,14 @@ export default {
           },
         });
         this.mw1 = response.data;
+        console.log('getmw1: Data fetched successfully', this.mw1);
       } catch (error) {
         console.error('Fehler beim Abrufen von mw1:', error);
       } finally {
         this.loading = false;
+        console.log('getmw1: Finished fetching mw1');
       }
     },
-    
-    // Ähnliche getmw Methoden für andere Tabs (getmw2, getmw3, etc.)
-
   },
 
   watch: {
@@ -133,6 +150,7 @@ export default {
   },
 
   mounted() {
+    console.log('Component mounted: Start fetching merksmalswerte');
     this.fetchMerkmalswerte();
   }
 };
@@ -140,13 +158,13 @@ export default {
 
 <style>
 .custom-panel {
-  margin-bottom: 16px; /* Beispiel für benutzerdefinierte Styles */
+  margin-bottom: 16px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  opacity: 0.9; /* Beispiel für Opacity-Wert */
+  opacity: 0.9;
 }
 
 .custom-title {
-  font-size: 120px; /* Beispiel für größere Schriftgröße */
+  font-size: 120px;
 }
 </style>
