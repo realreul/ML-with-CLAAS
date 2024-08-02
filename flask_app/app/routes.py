@@ -26,7 +26,7 @@ def get_prediction():
     if merkmalswert and merkmalswert != "Alle Merkmalswerte":
         predictions = predict(merkmal, merkmalswert, startdatum, zielvariable)
         print(f"Predictions for FE: {predictions}")  # Debug-Ausgabe
-        return jsonify(predictions.tolist())
+        return jsonify(predictions)
     else:
         predictions_df = predict_all(merkmal, startdatum, zielvariable)
         csv_buffer = BytesIO()

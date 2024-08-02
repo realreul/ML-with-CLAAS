@@ -2,6 +2,7 @@ import pandas as pd
 import tensorflow as tf
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
+from dateutil.relativedelta import relativedelta
 import joblib
 
 def load_model(zielvariable):
@@ -37,6 +38,12 @@ def load_preprocessors(zielvariable):
     scaler_X = joblib.load('models/scaler_X.pkl')
     label_encoders = joblib.load('models/label_encoders.pkl')
     return scaler_X, scaler_y, label_encoders
+
+from datetime import datetime, timedelta
+import numpy as np
+
+from datetime import datetime, timedelta
+import numpy as np
 
 def predict(merkmal, merkmalswert, startdatum, zielvariable):
     # Anpassen des Zielvariablennamens
@@ -96,7 +103,21 @@ def predict(merkmal, merkmalswert, startdatum, zielvariable):
         predictions_rescaled = np.round(predictions_rescaled, 4)
         print(f"Rounded predictions for Relativer Anteil: {predictions_rescaled}")  # Debug-Ausgabe
     
-    return predictions_rescaled
+    # Startdatum als datetime-Objekt
+    start_date = datetime.strptime(startdatum, "%Y-%m-%d")
+
+    # Erstelle eine Liste der Datumswerte für die Vorhersagen
+    prediction_dates = [(start_date + relativedelta(months=i)).replace(day=1).strftime("%Y-%m-%d") for i in range(12)]
+
+    # Konvertiere die Vorhersagen in ein Standard-Python-Format
+    predictions_rescaled = predictions_rescaled.astype(float).tolist()
+
+    # Kombiniere die Datumswerte mit den Vorhersagen
+    predictions_with_dates = list(zip(prediction_dates, predictions_rescaled[0]))
+
+    return predictions_with_dates
+
+
 
 
 def predict_all(merkmal, startdatum, zielvariable):
