@@ -64,7 +64,7 @@
           <!-- Tabelle zur Anzeige der Vorhersagedaten -->
           <v-row class="mb-16">
             <v-col cols="12">
-              <v-simple-table v-if="mw1.length > 0" class="prediction-table">
+              <v-simple-table v-if="mw1.length > 0 && selectedMerkmalswert !== 'Alle Merkmalswerte'" class="prediction-table">
                 <thead>
                   <tr>
                     <th v-for="(item, index) in mw1" :key="'date-header-' + index">{{ item[0] }}</th>
@@ -162,9 +162,21 @@ export default {
           merkmalswert: this.selectedMerkmalswert,
           startdatum: this.selectedStartdatum,
           zielvariable: this.selectedOption // Neue Option hinzugefügt
-        });
-        this.mw1 = response.data; // Speichert die empfangenen Daten in mw1
-        console.log('getmw1: Data fetched successfully', this.mw1);
+        }, { responseType: 'blob' }); // Antworttyp auf 'blob' setzen
+
+        if (this.selectedMerkmalswert === "Alle Merkmalswerte") {
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', 'predictions.csv');
+          document.body.appendChild(link);
+          link.click();
+          window.URL.revokeObjectURL(url);
+        } else {
+          const textData = await response.data.text();
+          this.mw1 = JSON.parse(textData); // Speichert die empfangenen Daten in mw1
+          console.log('getmw1: Data fetched successfully', this.mw1);
+        }
       } catch (error) {
         console.error('Fehler beim Abrufen von mw1:', error);
       } finally {
@@ -192,6 +204,7 @@ export default {
   }
 };
 </script>
+
 
 <style>
 .custom-panel {
