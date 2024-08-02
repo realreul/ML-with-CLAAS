@@ -36,6 +36,13 @@
                     :items="startdatum"
                     v-model="selectedStartdatum"
                   ></v-select>
+
+                  <!-- Radio Buttons hinzugefügt -->
+                  <v-radio-group v-model="selectedOption" row>
+                    <v-radio label="OptionTakeRate" value="optionTakeRate"></v-radio>
+                    <v-radio label="Gesamte Anzahl" value="gesamteAnzahl"></v-radio>
+                  </v-radio-group>
+                  
                   <div>
                     <v-btn block :loading="loading" @click="getmw1">
                       Machine Learning Modell für Vorhersage initiieren
@@ -86,6 +93,7 @@ export default {
     startdatum: [],
     selectedMerkmalswert: null,
     selectedStartdatum: null,
+    selectedOption: 'optionTakeRate', // Neue Datenbindung für Radio-Buttons
   }),
 
   methods: {
@@ -126,11 +134,11 @@ export default {
       this.loading = true;
       console.log('getmw1: Start fetching mw1');
       try {
-        const response = await axios.get('https://api.zippopotam.us/us/33162', {
-          params: {
-            merkmalswert: this.selectedMerkmalswert,
-            startdatum: this.selectedStartdatum,
-          },
+        const response = await axios.post('http://localhost:5000/predict', {
+          merkmal: this.tab,
+          merkmalswert: this.selectedMerkmalswert,
+          startdatum: this.selectedStartdatum,
+          zielvariable: this.selectedOption // Neue Option hinzugefügt
         });
         this.mw1 = response.data;
         console.log('getmw1: Data fetched successfully', this.mw1);

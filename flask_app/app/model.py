@@ -28,6 +28,7 @@ def get_data(merkmal, merkmalswert, startdatum):
     return data
 
 def load_preprocessors(zielvariable):
+    scaler_y = None  # Initialisiere scaler_y
     if zielvariable == 'Relativer Anteil':
         scaler_y = joblib.load('models/scaler_y_tr.pkl')
     elif zielvariable == 'Bestätige Menge':
@@ -39,10 +40,10 @@ def load_preprocessors(zielvariable):
 
 def predict(merkmal, merkmalswert, startdatum, zielvariable):
     # Anpassen des Zielvariablennamens
-    if zielvariable == 'BestätigteMenge':
+    if zielvariable == 'gesamteAnzahl':
         zielvariable = 'Bestätige Menge'
 
-    if zielvariable == 'OptionTakeRate':
+    if zielvariable == 'optionTakeRate':
         zielvariable = 'Relativer Anteil'
 
     model = load_model(zielvariable)
@@ -100,11 +101,12 @@ def predict(merkmal, merkmalswert, startdatum, zielvariable):
 
 def predict_all(merkmal, startdatum, zielvariable):
     # Anpassen des Zielvariablennamens
-    if zielvariable == 'BestätigteMenge':
+    if zielvariable == 'gesamteAnzahl':
         zielvariable = 'Bestätige Menge'
 
-    if zielvariable == 'OptionTakeRate':
+    if zielvariable == 'optionTakeRate':
         zielvariable = 'Relativer Anteil'
+
 
     model = load_model(zielvariable)
     data = get_data(merkmal, "Alle Merkmalswerte", startdatum)
