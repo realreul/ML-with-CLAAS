@@ -2,6 +2,7 @@ import pandas as pd
 import tensorflow as tf
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
+from dateutil.relativedelta import relativedelta
 import joblib
 
 def load_model(zielvariable):
@@ -28,6 +29,7 @@ def get_data(merkmal, merkmalswert, startdatum):
     return data
 
 def load_preprocessors(zielvariable):
+    scaler_y = None  # Initialisiere scaler_y
     if zielvariable == 'Relativer Anteil':
         scaler_y = joblib.load('models/scaler_y_tr.pkl')
     elif zielvariable == 'Bestätige Menge':
@@ -37,12 +39,18 @@ def load_preprocessors(zielvariable):
     label_encoders = joblib.load('models/label_encoders.pkl')
     return scaler_X, scaler_y, label_encoders
 
+from datetime import datetime, timedelta
+import numpy as np
+
+from datetime import datetime, timedelta
+import numpy as np
+
 def predict(merkmal, merkmalswert, startdatum, zielvariable):
     # Anpassen des Zielvariablennamens
-    if zielvariable == 'BestätigteMenge':
+    if zielvariable == 'gesamteAnzahl':
         zielvariable = 'Bestätige Menge'
 
-    if zielvariable == 'OptionTakeRate':
+    if zielvariable == 'optionTakeRate':
         zielvariable = 'Relativer Anteil'
 
     model = load_model(zielvariable)
@@ -90,18 +98,44 @@ def predict(merkmal, merkmalswert, startdatum, zielvariable):
 
     if zielvariable == 'Bestätige Menge':
         predictions_rescaled = np.round(predictions_rescaled)
+        predictions_rescaled[predictions_rescaled < 0] = 0  # Setze negative Werte auf 0
         print(f"Rounded predictions for Bestätige Menge: {predictions_rescaled}")  # Debug-Ausgabe
     elif zielvariable == 'Relativer Anteil':
-        predictions_rescaled = np.round(predictions_rescaled, 4)
+        predictions_rescaled = np.round(predictions_rescaled, 4)  # Runde auf 4 Nachkommastellen
+        predictions_rescaled[predictions_rescaled < 0] = 0  # Setze negative Werte auf 0
         print(f"Rounded predictions for Relativer Anteil: {predictions_rescaled}")  # Debug-Ausgabe
     
-    return predictions_rescaled
+    # Startdatum als datetime-Objekt
+    start_date = datetime.strptime(startdatum, "%Y-%m-%d")
 
+    # Erstelle eine Liste der Datumswerte für die Vorhersagen
+    prediction_dates = [(start_date + relativedelta(months=i)).replace(day=1).strftime("%Y-%m-%d") for i in range(12)]
+
+    # Konvertiere die Vorhersagen in ein Standard-Python-Format
+    predictions_rescaled = (predictions_rescaled * 100).astype(float).tolist()
+
+    predictions_rescaled = np.round(predictions_rescaled, 4)  # Runde auf 4 Nachkommastellen
+
+    # Kombiniere die Datumswerte mit den Vorhersagen
+    predictions_with_dates = list(zip(prediction_dates, predictions_rescaled[0]))
+
+    return predictions_with_dates
+
+
+
+
+from dateutil.relativedelta import relativedelta
+import pandas as pd
+import numpy as np
 
 def predict_all(merkmal, startdatum, zielvariable):
     # Anpassen des Zielvariablennamens
-    if zielvariable == 'BestätigteMenge':
+    if zielvariable == 'gesamteAnzahl':
         zielvariable = 'Bestätige Menge'
+
+    if zielvariable == 'optionTakeRate':
+        zielvariable = 'Relativer Anteil'
+
 
     model = load_model(zielvariable)
     data = get_data(merkmal, "Alle Merkmalswerte", startdatum)
@@ -112,7 +146,7 @@ def predict_all(merkmal, startdatum, zielvariable):
 
     scaler_X, scaler_y, label_encoders = load_preprocessors(zielvariable)
 
-    results = []
+    results = {}
 
     unique_merkmalswerte = data['Merkmalwert'].unique()
     print(f"Verarbeitete Merkmalswerte: {unique_merkmalswerte}")  # Ausgabe der einzigartigen Merkmalswerte
@@ -136,7 +170,6 @@ def predict_all(merkmal, startdatum, zielvariable):
         X_cat_encoded = X_cat_encoded.reshape(1, 12, len(categorical_features))
 
         predictions = model.predict([X_cont_combined] + [X_cat_encoded[:, :, i] for i in range(X_cat_encoded.shape[2])])
-        #predictions_rescaled = np.round(scaler_y.inverse_transform(predictions.reshape(-1, 12)))
         predictions_rescaled = scaler_y.inverse_transform(predictions.reshape(-1, 12))
 
         if zielvariable == 'Bestätige Menge':
@@ -144,8 +177,18 @@ def predict_all(merkmal, startdatum, zielvariable):
         elif zielvariable == 'Relativer Anteil':
             predictions_rescaled = np.round(predictions_rescaled, 4)
 
-        results.extend([{'Merkmal': merkmal, 'Merkmalwert': merkmalswert, 'Monat': i+1, 'Vorhersage': pred} for i, pred in enumerate(predictions_rescaled[0])])
+        results[merkmalswert] = predictions_rescaled[0]
+
+    # Erstellen des DataFrames aus dem Dictionary
+    start_date = pd.to_datetime(startdatum)
+    prediction_dates = [(start_date + relativedelta(months=i)).replace(day=1).strftime("%Y-%m-%d") for i in range(12)]
     
-    return pd.DataFrame(results)
+    df = pd.DataFrame(results).T
+    df.columns = prediction_dates
+    df.reset_index(inplace=True)
+    df.rename(columns={'index': 'Merkmalwert'}, inplace=True)
+
+    return df
+
 
 
