@@ -112,7 +112,7 @@ def predict(merkmal, merkmalswert, startdatum, zielvariable):
     prediction_dates = [(start_date + relativedelta(months=i)).replace(day=1).strftime("%Y-%m-%d") for i in range(12)]
 
     # Konvertiere die Vorhersagen in ein Standard-Python-Format
-    predictions_rescaled = (predictions_rescaled * 100).astype(float).tolist()
+    predictions_rescaled = (predictions_rescaled).astype(float).tolist()
 
     predictions_rescaled = np.round(predictions_rescaled, 4)  # Runde auf 4 Nachkommastellen
 
