@@ -78,25 +78,6 @@
               </v-simple-table>
             </v-col>
           </v-row>
-          
-          <v-row class="mb-16">
-            <v-col cols="12">
-              <v-expansion-panels>
-                <v-expansion-panel rounded="lg" variant="outlined">
-                  <v-expansion-panel-title class="text-h6">Was sind die Optionsannahmeraten?</v-expansion-panel-title>
-                  <v-expansion-panel-text>Lorem ipsum...</v-expansion-panel-text>
-                </v-expansion-panel>
-                <v-expansion-panel rounded="lg" variant="outlined">
-                  <v-expansion-panel-title class="text-h6">Wie sagt man den nächsten Monat vorher?</v-expansion-panel-title>
-                  <v-expansion-panel-text>Lorem ipsum...</v-expansion-panel-text>
-                </v-expansion-panel>
-                <v-expansion-panel rounded="lg" variant="outlined">
-                  <v-expansion-panel-title class="text-h6">Wie ändert man den Wert?</v-expansion-panel-title>
-                  <v-expansion-panel-text>Lorem ipsum...</v-expansion-panel-text>
-                </v-expansion-panel>
-              </v-expansion-panels>
-            </v-col>
-          </v-row>
         </v-responsive>
       </v-col>
     </v-row>
