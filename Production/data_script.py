@@ -105,7 +105,7 @@ def merge_dataframes(result_df, combined_df):
 
 def main():
     logging.info("Starte Hauptprozess...")
-    excel_files = ['CLAAS_data/S611_Teil_1_P10_20240604.XLSX', 'CLAAS_data/S611_Teil_2_P10_20240604.XLSX']
+    excel_files = ['../CLAAS_data/S611_Teil_1_P10_20240604.XLSX', '../CLAAS_data/S611_Teil_2_P10_20240604.XLSX']
     df = read_excel_files(excel_files)
     df = extract_and_create_columns(df, 'Merkmal/Wert/Bezeichng. f. Serienplanun')
 
@@ -120,10 +120,10 @@ def main():
     monthly_aggregates = calculate_monthly_aggregates(df)
     result_df = convert_aggregates_to_df(monthly_aggregates)
 
-    combined_df = read_and_process_external_files('External_data')
+    combined_df = read_and_process_external_files('../External_data')
     merged_df = merge_dataframes(result_df, combined_df)
 
-    merged_df.to_csv('CLAAS_data/MLbase_DataFrame.csv', index=False)
+    merged_df.to_csv('../CLAAS_data/MLbase_DataFrame.csv', index=False)
     logging.info("Prozess abgeschlossen und DataFrame gespeichert.")
 
 if __name__ == "__main__":
